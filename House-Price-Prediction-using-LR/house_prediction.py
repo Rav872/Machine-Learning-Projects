@@ -4,6 +4,7 @@ import urllib.request
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 #Lets load the california house pricing dataset
 
@@ -25,11 +26,28 @@ dataset = pd.DataFrame(cali.data, columns=cali.feature_names)
 # Lets add the dependent feature price too
 dataset['price']=cali.target
 
-print(dataset.head())
-print(dataset.info()) # will give the datatype of dataset parameters
+# print(dataset.head())
+# print(dataset.info()) # will give the datatype of dataset parameters
 
 # Summarizing the stats of the data
 print(dataset.describe())
+
+# Check the missing values
+
+# print(dataset.isnull().sum()) # No  missing values yet
+
+# Exploratory data analysis
+# Important step : run correlation on Linear regression problem to check how output is correlated to inputs
+
+print(dataset.corr()) #  More negatively correlated means negative the parameter will impact decrease the house price, positive parameters increase the house price, As an example if MedInc si increasing or positively corelated means house price will increase too
+
+# # based on this corelation we can do scater plot too
+# print(sns.pairplot(dataset))
+
+plt.scatter(dataset['MedInc'], dataset['price'])
+plt.show()
+
+
 
 
 
