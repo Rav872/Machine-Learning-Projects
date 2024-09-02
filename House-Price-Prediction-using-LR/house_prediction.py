@@ -45,7 +45,39 @@ print(dataset.corr()) #  More negatively correlated means negative the parameter
 # print(sns.pairplot(dataset))
 
 plt.scatter(dataset['MedInc'], dataset['price'])
-plt.show()
+# plt.show() It will show the plot
+
+# We can display multiple plots to check the corelation using seaborn but we will not do that 
+
+# Independent and dependent features
+# Price is dependent feature, rest are independent feature
+x=dataset.iloc[:,:-1] # will give independent feature
+y=dataset.iloc[:,-1]
+
+print(x.head())
+
+# Train test split
+
+from sklearn.model_selection import train_test_split
+
+x_train, x_test, y_train, y_test=train_test_split(x,y,test_size=0.3,random_state=42)
+
+print("x- train", x_train) # similarly we can check y_train, y_test
+# To check how model is performing, I will check the x-test data
+print("x=-test", x_test)
+
+# Before model training we need to do standard scaling
+
+# Every feature is calculated with different-different units, we need to use standard scaling to make it global minima or we can say same unit(standardize or normalize)
+
+# Standardize the dataset because internally we use gradient descent
+
+from sklearn.preprocessing import StandardScaler
+scaler=StandardScaler()
+
+x_train=scaler.fit_transform(x_train)
+x_test=scaler.transform(x_test) # test data we don't need to fit transform
+print(x_train)
 
 
 
