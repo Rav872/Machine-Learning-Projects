@@ -103,6 +103,19 @@ print(reg_pred)
 plt.scatter(y_test, reg_pred)
 # plt.show() # Plotting should be linear to verify that model works well
 
+#Prediction with residual
+residuals=y_test-reg_pred # residuals means error
+
+print(residuals)
+#Plot this residual
+sns.displot(residuals, kind="kde")
+# plt.show() 
+
+# scatter plot wrt prediction and residuals
+plt.scatter(reg_pred, residuals)  # Uniform distribution
+plt.show()
+
+# Using performance metrics
 
 
 
