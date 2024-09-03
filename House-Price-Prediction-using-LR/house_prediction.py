@@ -79,6 +79,31 @@ x_train=scaler.fit_transform(x_train)
 x_test=scaler.transform(x_test) # test data we don't need to fit transform
 print(x_train)
 
+# Implement Linear regression algorithm (Model training)
+from sklearn.linear_model import LinearRegression
+regression=LinearRegression()
+regression.fit(x_train,y_train)
+
+#Print the coefficient and intercept
+print("Printing regression coeficient: ") # There is coef for every feature
+print(regression.coef_)
+
+print("Printing intercept: ") # Intercept is always single value
+print(regression.intercept_)
+
+# On which parameter model has been trained
+print(regression.get_params())
+
+# Prediction with x_test data
+reg_pred=regression.predict(x_test)
+print("Regression prediction: ")
+print(reg_pred)
+
+#Lets check if prediction is worked well or not by plotting scatter plot
+plt.scatter(y_test, reg_pred)
+# plt.show() # Plotting should be linear to verify that model works well
+
+
 
 
 
