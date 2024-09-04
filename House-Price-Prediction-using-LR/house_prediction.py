@@ -112,11 +112,17 @@ sns.displot(residuals, kind="kde")
 # plt.show() 
 
 # scatter plot wrt prediction and residuals
-plt.scatter(reg_pred, residuals)  # Uniform distribution
-plt.show()
+# plt.scatter(reg_pred, residuals)  # Uniform distribution
+# plt.show()
 
 # Using performance metrics
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
 
+print(mean_absolute_error(y_test, reg_pred))
+print(mean_squared_error(y_test, reg_pred))
+
+print(np.sqrt(mean_squared_error(y_test, reg_pred)))
 
 
 
