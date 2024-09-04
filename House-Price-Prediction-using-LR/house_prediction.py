@@ -124,6 +124,8 @@ print(mean_squared_error(y_test, reg_pred))
 
 print(np.sqrt(mean_squared_error(y_test, reg_pred)))
 
+# R square and adjusted R square
+
 
 
 
