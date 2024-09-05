@@ -124,8 +124,24 @@ print(mean_squared_error(y_test, reg_pred))
 
 print(np.sqrt(mean_squared_error(y_test, reg_pred)))
 
-# R square and adjusted R square
+# R square and adjusted R square Adjusted R square will be less than R square
 
+from sklearn.metrics import r2_score
+score=r2_score(y_test,reg_pred)
+print("Score", score)
+
+# display adjusted R-squared
+adjusted_Rsquare = 1 -(1-score)*(len(y_test)-1)/(len(y_test)-x_test.shape[1]-1)
+
+print("Adjusted Rsquare:", adjusted_Rsquare)
+
+# New data prediction
+
+print(cali.data[0].shape) # This is the shape data has given we need reshape it for regression
+
+print(cali.data[0].reshape(1,-1))
+# Need to scale the data before prediction
+print(regression.predict(scaler.transform(cali.data[0].reshape(1,-1))))
 
 
 
