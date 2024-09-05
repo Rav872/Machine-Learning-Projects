@@ -152,5 +152,7 @@ pickled_model=pickle.load(open('regmodel.pkl', 'rb'))
 ## Prediction 
 print(pickled_model.predict(scaler.transform(cali.data[0].reshape(1,-1))))
 
+# Converting entire project to end to end project following industrial standard
+
 
 
