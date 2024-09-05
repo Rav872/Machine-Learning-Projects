@@ -143,7 +143,14 @@ print(cali.data[0].reshape(1,-1))
 # Need to scale the data before prediction
 print(regression.predict(scaler.transform(cali.data[0].reshape(1,-1))))
 
+# Pickling the model file for deployment
+import pickle
+pickle.dump(regression, open('regmodel.pkl', 'wb'))
 
+pickled_model=pickle.load(open('regmodel.pkl', 'rb'))
+
+## Prediction 
+print(pickled_model.predict(scaler.transform(cali.data[0].reshape(1,-1))))
 
 
 
