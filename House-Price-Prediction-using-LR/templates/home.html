@@ -1,3 +1,85 @@
-<h1>
-    Hello World
-</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>House Price Prediction</h2>
+        <form action="/predict" method="POST">
+            <label for="MedInc">Median Income:</label>
+            <input type="text" id="MedInc" name="MedInc" placeholder="Enter Median Income">
+
+            <label for="HouseAge">House Age:</label>
+            <input type="text" id="HouseAge" name="HouseAge" placeholder="Enter House Age">
+
+            <label for="AveRooms">Average Rooms:</label>
+            <input type="text" id="AveRooms" name="AveRooms" placeholder="Enter Average Rooms">
+
+            <label for="Population">Population:</label>
+            <input type="text" id="Population" name="Population" placeholder="Enter Population">
+
+            <label for="Latitude">Latitude:</label>
+            <input type="text" id="Latitude" name="Latitude" placeholder="Enter Latitude">
+
+            <label for="AveBedrms">Average Bedrooms:</label>
+            <input type="text" id="AveBedrms" name="AveBedrms" placeholder="Enter Average Bedrooms">
+
+            <label for="AveOccup">Average Occupancy:</label>
+            <input type="text" id="AveOccup" name="AveOccup" placeholder="Enter Average Occupancy">
+
+            <label for="Longitude">Longitude:</label>
+            <input type="text" id="Longitude" name="Longitude" placeholder="Enter Longitude">
+
+            <input type="submit" value="Predict">
+        </form>
+
+        <div class="result">
+            {% if prediction_text %}
+                <p>{{ prediction_text }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
