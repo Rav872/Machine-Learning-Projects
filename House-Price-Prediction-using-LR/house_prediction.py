@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pickle
 
 #Lets load the california house pricing dataset
 
@@ -77,6 +78,9 @@ scaler=StandardScaler()
 
 x_train=scaler.fit_transform(x_train)
 x_test=scaler.transform(x_test) # test data we don't need to fit transform
+
+pickle.dump(scaler,open('scaling.pkl', 'wb'))
+
 print(x_train)
 
 # Implement Linear regression algorithm (Model training)
@@ -144,7 +148,6 @@ print(cali.data[0].reshape(1,-1))
 print(regression.predict(scaler.transform(cali.data[0].reshape(1,-1))))
 
 # Pickling the model file for deployment
-import pickle
 pickle.dump(regression, open('regmodel.pkl', 'wb'))
 
 pickled_model=pickle.load(open('regmodel.pkl', 'rb'))
