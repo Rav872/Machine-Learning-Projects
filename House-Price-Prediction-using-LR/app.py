@@ -1,4 +1,5 @@
 import pickle
+import webbrowser
 from flask import Flask, request, app, jsonify, url_for, render_template
 
 import numpy as np
@@ -35,4 +36,6 @@ def predict():
     return render_template("home.html", prediction_text="The House price prediction is {}".format(output))
 
 if __name__=='__main__':
-    app.run(debug=True)
+    # Automatically open the link in the default browser
+    webbrowser.open_new("http://127.0.0.1:5001")
+    app.run(debug=True, use_reloader=False, port=5001)
