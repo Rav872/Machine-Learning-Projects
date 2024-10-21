@@ -13,8 +13,8 @@ import numpy as np
 import pandas as pd
 
 app=Flask(__name__)
-app.config["REDIS_URL"]="redis://localhost"
-app.register_blueprint(sse, url_prefix='/events')
+# app.config["REDIS_URL"]="redis://localhost"
+# app.register_blueprint(sse, url_prefix='/events')
 
 #Load the model
 regmodel=pickle.load(open('regmodel.pkl', 'rb'))
@@ -82,38 +82,10 @@ def request_consume():
         print("Closing consumer")
         kfkconsumer.close()
 
-# @app.route("/stream")
-# def send_response():
-#     def event_stream():
-#         consumer = KafkaConsumer(
-#             result_topic,
-#             bootstrap_servers=['localhost:9092'],
-#             auto_offset_reset='earliest',
-#             enable_auto_commit=True,
-#             group_id='prediction_result_group',
-#             value_deserializer=lambda m: json.loads(m.decode('ascii'))
-#         )
-
-#         try:
-#             for message in consumer:
-#                 data = message.value
-#                 print(f"sending: {data}")
-#                 yield f'data: {data}\n\n' 
-#         except Exception as e:
-#             print(f"Error: {e}")
-#         finally:
-#             consumer.close()
-
-#     resp = Response(event_stream(), content_type='text/event-stream')
-#     resp.headers["Cache-Control"] = "no-cache"
-#     resp.headers["Connection"] = "keep-alive"
-#     resp.headers["Access-Control-Allow-Origin"] = "*"
-
-#     return resp
-
 @app.route("/stream")
-def server_side_event():
-    consumer = KafkaConsumer(
+def send_response():
+    def event_stream():
+        consumer = KafkaConsumer(
             result_topic,
             bootstrap_servers=['localhost:9092'],
             auto_offset_reset='earliest',
@@ -121,14 +93,42 @@ def server_side_event():
             group_id='prediction_result_group',
             value_deserializer=lambda m: json.loads(m.decode('ascii'))
         )
-    
-    for message in consumer:
-        data = message.value
-        print(f"sending: {data}")
 
-    sse.publish(data, type='prediction')
-    print("New Customer Time: ",datetime.datetime.now())
-    return "Message sent!"
+        try:
+            for message in consumer:
+                data = message.value
+                print(f"sending: {data}")
+                yield f'data: {data}\n\n' 
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            consumer.close()
+
+    resp = Response(event_stream(), content_type='text/event-stream')
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Connection"] = "keep-alive"
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+
+    return resp
+
+# @app.route("/stream")
+# def server_side_event():
+#     consumer = KafkaConsumer(
+#             result_topic,
+#             bootstrap_servers=['localhost:9092'],
+#             auto_offset_reset='earliest',
+#             enable_auto_commit=True,
+#             group_id='prediction_result_group',
+#             value_deserializer=lambda m: json.loads(m.decode('ascii'))
+#         )
+    
+#     for message in consumer:
+#         data = message.value
+#         print(f"sending: {data}")
+
+#     sse.publish(data, type='prediction')
+#     print("New Customer Time: ",datetime.datetime.now())
+#     return "Message sent!"
 
 if __name__=='__main__':
     # Automatically open the link in the default browser

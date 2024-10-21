@@ -184,7 +184,7 @@
       });
 
       function startEventSource() {
-        const source = new EventSource("{{ url_for('sse.stream') }}");
+        const source = new EventSource("/stream");
         source.addEventListener(
           "prediction",
           function (event) {
