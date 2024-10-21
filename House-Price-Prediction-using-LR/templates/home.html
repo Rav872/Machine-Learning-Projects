@@ -176,41 +176,27 @@
 
           sBtn.removeAttribute("disabled");
           sBtn.innerText = "Predict";
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-          });
+          window.screenTop = 0;
         }
       });
 
       function startEventSource() {
-        const source = new EventSource("/stream");
-        source.addEventListener(
-          "prediction",
-          function (event) {
-            var data = JSON.parse(event.data);
+        const eventSource = new EventSource("/stream");
 
-            resultElement.innerHTML = `The House price prediction is ${data?.prediction}`;
-            resultElement.classList.add("success");
-            resultElement.classList.remove("error");
+        eventSource.onmessage = function (event) {
+          resultElement.innerHTML = `The House price prediction is ${event.data}`;
+          resultElement.classList.add("success");
+          resultElement.classList.remove("error");
 
-            sBtn.removeAttribute("disabled");
-            sBtn.innerText = "Predict";
-            window.scrollTo({
-              top: 0,
-              behavior: "smooth",
-            });
-          },
-          false
-        );
+          sBtn.removeAttribute("disabled");
+          sBtn.innerText = "Predict";
+        };
 
-        source.addEventListener(
-          "error",
-          function (event) {
-            console.log("Failed to connect to event stream. Is Redis running?");
-          },
-          false
-        );
+        eventSource.onerror = function (event) {
+          console.error("Error in receiving event stream");
+          eventSource.close();
+          setTimeout(startEventSource, 3000);
+        };
       }
     </script>
   </body>
