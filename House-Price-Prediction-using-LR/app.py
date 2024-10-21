@@ -1,3 +1,4 @@
+import datetime
 import pickle
 import time
 import webbrowser
@@ -5,11 +6,15 @@ from flask import Flask, Response, json, request, app, jsonify, stream_with_cont
 from producer import Producer
 from kafka import KafkaConsumer
 import threading
+from flask_sse import sse
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import numpy as np
 import pandas as pd
 
 app=Flask(__name__)
+app.config["REDIS_URL"]="redis://localhost"
+app.register_blueprint(sse, url_prefix='/events')
 
 #Load the model
 regmodel=pickle.load(open('regmodel.pkl', 'rb'))
@@ -23,6 +28,7 @@ producer = Producer(request_topic)
 @app.route('/')
 def home():
     return render_template('home.html')
+
 
 @app.route('/predict_api',methods=['POST'])
 def predict_api():
@@ -76,10 +82,38 @@ def request_consume():
         print("Closing consumer")
         kfkconsumer.close()
 
+# @app.route("/stream")
+# def send_response():
+#     def event_stream():
+#         consumer = KafkaConsumer(
+#             result_topic,
+#             bootstrap_servers=['localhost:9092'],
+#             auto_offset_reset='earliest',
+#             enable_auto_commit=True,
+#             group_id='prediction_result_group',
+#             value_deserializer=lambda m: json.loads(m.decode('ascii'))
+#         )
+
+#         try:
+#             for message in consumer:
+#                 data = message.value
+#                 print(f"sending: {data}")
+#                 yield f'data: {data}\n\n' 
+#         except Exception as e:
+#             print(f"Error: {e}")
+#         finally:
+#             consumer.close()
+
+#     resp = Response(event_stream(), content_type='text/event-stream')
+#     resp.headers["Cache-Control"] = "no-cache"
+#     resp.headers["Connection"] = "keep-alive"
+#     resp.headers["Access-Control-Allow-Origin"] = "*"
+
+#     return resp
+
 @app.route("/stream")
-def send_response():
-    def event_stream():
-        consumer = KafkaConsumer(
+def server_side_event():
+    consumer = KafkaConsumer(
             result_topic,
             bootstrap_servers=['localhost:9092'],
             auto_offset_reset='earliest',
@@ -87,28 +121,20 @@ def send_response():
             group_id='prediction_result_group',
             value_deserializer=lambda m: json.loads(m.decode('ascii'))
         )
+    
+    for message in consumer:
+        data = message.value
+        print(f"sending: {data}")
 
-        try:
-            for message in consumer:
-                data = message.value
-                print(f"sending: {data}")
-                yield f'data: {data}\n\n' 
-        except Exception as e:
-            print(f"Error: {e}")
-        finally:
-            consumer.close()
-
-    return Response(event_stream(), content_type='text/event-stream', headers={
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-        "Access-Control-Allow-Origin": "*"
-    })
-
+    sse.publish(data, type='prediction')
+    print("New Customer Time: ",datetime.datetime.now())
+    return "Message sent!"
 
 if __name__=='__main__':
     # Automatically open the link in the default browser
-    webbrowser.open_new("http://127.0.0.1:5001")
+    # webbrowser.open_new("http://127.0.0.1:5001")
     threading.Thread(target=request_consume, daemon=True).start()
     app.run(debug=True, use_reloader=False, port=5001)
+
 
 producer.clean()
