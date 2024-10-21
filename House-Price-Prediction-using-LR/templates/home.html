@@ -1,85 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>House Price Prediction</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        input[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+      }
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+      .result {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #333;
+      }
+
+      #sBtn {
+        width: 100%;
+        padding: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #sBtn:hover {
+        background-color: #45a049;
+      }
+
+      #predictionResult.error {
+        background-color: #fee2e2;
+        border: 1px solid #f87171;
+        color: #b91c1c;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+        position: relative;
+      }
+
+      .success {
+        background-color: #d1fae5;
+        border: 1px solid #34d399;
+        color: #047857;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+        position: relative;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h2>House Price Prediction</h2>
-        <form action="/predict" method="POST">
-            <label for="MedInc">Median Income:</label>
-            <input type="text" id="MedInc" name="MedInc" placeholder="Enter Median Income">
+      <div class="result">
+        <p id="predictionResult"></p>
+      </div>
+      <h2>House Price Prediction</h2>
+      <form id="predictionForm" action="/predict" method="POST">
+        <label for="MedInc">Median Income:</label>
+        <input
+          type="text"
+          id="MedInc"
+          name="MedInc"
+          placeholder="Enter Median Income"
+        />
 
-            <label for="HouseAge">House Age:</label>
-            <input type="text" id="HouseAge" name="HouseAge" placeholder="Enter House Age">
+        <label for="HouseAge">House Age:</label>
+        <input
+          type="text"
+          id="HouseAge"
+          name="HouseAge"
+          placeholder="Enter House Age"
+        />
 
-            <label for="AveRooms">Average Rooms:</label>
-            <input type="text" id="AveRooms" name="AveRooms" placeholder="Enter Average Rooms">
+        <label for="AveRooms">Average Rooms:</label>
+        <input
+          type="text"
+          id="AveRooms"
+          name="AveRooms"
+          placeholder="Enter Average Rooms"
+        />
 
-            <label for="Population">Population:</label>
-            <input type="text" id="Population" name="Population" placeholder="Enter Population">
+        <label for="Population">Population:</label>
+        <input
+          type="text"
+          id="Population"
+          name="Population"
+          placeholder="Enter Population"
+        />
 
-            <label for="Latitude">Latitude:</label>
-            <input type="text" id="Latitude" name="Latitude" placeholder="Enter Latitude">
+        <label for="Latitude">Latitude:</label>
+        <input
+          type="text"
+          id="Latitude"
+          name="Latitude"
+          placeholder="Enter Latitude"
+        />
 
-            <label for="AveBedrms">Average Bedrooms:</label>
-            <input type="text" id="AveBedrms" name="AveBedrms" placeholder="Enter Average Bedrooms">
+        <label for="AveBedrms">Average Bedrooms:</label>
+        <input
+          type="text"
+          id="AveBedrms"
+          name="AveBedrms"
+          placeholder="Enter Average Bedrooms"
+        />
 
-            <label for="AveOccup">Average Occupancy:</label>
-            <input type="text" id="AveOccup" name="AveOccup" placeholder="Enter Average Occupancy">
+        <label for="AveOccup">Average Occupancy:</label>
+        <input
+          type="text"
+          id="AveOccup"
+          name="AveOccup"
+          placeholder="Enter Average Occupancy"
+        />
 
-            <label for="Longitude">Longitude:</label>
-            <input type="text" id="Longitude" name="Longitude" placeholder="Enter Longitude">
+        <label for="Longitude">Longitude:</label>
+        <input
+          type="text"
+          id="Longitude"
+          name="Longitude"
+          placeholder="Enter Longitude"
+        />
 
-            <input type="submit" value="Predict">
-        </form>
-
-        <div class="result">
-            {% if prediction_text %}
-                <p>{{ prediction_text }}</p>
-            {% endif %}
-        </div>
+        <button type="submit" name="sBtn" id="sBtn">Predict</button>
+      </form>
     </div>
-</body>
+
+    <script>
+      const form = document.getElementById("predictionForm");
+      const sBtn = document.getElementById("sBtn");
+      const resultElement = document.getElementById("predictionResult");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        sBtn.innerText = "Predicting..";
+        sBtn.setAttribute("disabled", true);
+
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+          const resp = await fetch("/predict_api", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+          const result = await resp.json();
+          console.log(result);
+          console.log("Data sent for processing");
+          startEventSource();
+        } catch (err) {
+          console.error("Failed to send data", err);
+          resultElement.innerText = "Failed to send data";
+          resultElement.classList.remove("success");
+          resultElement.classList.add("error");
+
+          sBtn.removeAttribute("disabled");
+          sBtn.innerText = "Predict";
+          window.screenTop = 0;
+        }
+      });
+
+      function startEventSource() {
+        const eventSource = new EventSource("/stream");
+
+        eventSource.onmessage = function (event) {
+          resultElement.innerHTML = `The House price prediction is ${event.data}`;
+          resultElement.classList.add("success");
+          resultElement.classList.remove("error");
+
+          sBtn.removeAttribute("disabled");
+          sBtn.innerText = "Predict";
+        };
+
+        eventSource.onerror = function (event) {
+          console.error("Error in receiving event stream");
+          eventSource.close();
+          setTimeout(startEventSource, 3000);
+        };
+      }
+    </script>
+  </body>
 </html>
