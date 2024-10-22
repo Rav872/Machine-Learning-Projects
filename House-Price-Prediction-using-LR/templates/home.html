@@ -24,6 +24,7 @@
         margin: 10px 0;
         border-radius: 5px;
         border: 1px solid #ccc;
+        max-width: 480px;
       }
       input[type="submit"]:hover {
         background-color: #45a049;
@@ -47,20 +48,30 @@
         background-color: #45a049;
       }
 
-      #predictionResult.error {
+      .error {
         background-color: #fee2e2;
         border: 1px solid #f87171;
         color: #b91c1c;
-        padding: 1rem;
         border-radius: 0.375rem;
         margin-bottom: 1rem;
         position: relative;
+        padding: 1rem;
       }
 
       .success {
         background-color: #d1fae5;
         border: 1px solid #34d399;
         color: #047857;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+        position: relative;
+      }
+
+      .pending {
+        background-color: #f3f4f6;
+        border: 1px solid #d1d5db;
+        color: #6b7280;
         padding: 1rem;
         border-radius: 0.375rem;
         margin-bottom: 1rem;
@@ -166,37 +177,71 @@
           });
           const result = await resp.json();
           console.log(result);
-          console.log("Data sent for processing");
+          resultElement.innerHTML = `Price prediction in progress...`;
+          resultElement.classList.add("pending");
+          resultElement.classList.remove("error", "success");
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+
           startEventSource();
         } catch (err) {
           console.error("Failed to send data", err);
           resultElement.innerText = "Failed to send data";
-          resultElement.classList.remove("success");
           resultElement.classList.add("error");
+          resultElement.classList.remove("success", "pending");
 
           sBtn.removeAttribute("disabled");
           sBtn.innerText = "Predict";
-          window.screenTop = 0;
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
         }
       });
 
       function startEventSource() {
-        const eventSource = new EventSource("/stream");
+        const source = new EventSource("{{ url_for('sse.stream') }}");
+        source.addEventListener(
+          "prediction",
+          function (event) {
+            var data = JSON.parse(event.data);
+            console.log(data);
 
-        eventSource.onmessage = function (event) {
-          resultElement.innerHTML = `The House price prediction is ${event.data}`;
-          resultElement.classList.add("success");
-          resultElement.classList.remove("error");
+            resultElement.innerHTML = `The House price prediction is ${data?.prediction}`;
+            resultElement.classList.add("success");
+            resultElement.classList.remove("error", "pending");
 
-          sBtn.removeAttribute("disabled");
-          sBtn.innerText = "Predict";
-        };
+            sBtn.removeAttribute("disabled");
+            sBtn.innerText = "Predict";
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            });
+          },
+          false
+        );
 
-        eventSource.onerror = function (event) {
-          console.error("Error in receiving event stream");
-          eventSource.close();
-          setTimeout(startEventSource, 3000);
-        };
+        source.addEventListener(
+          "error",
+          function (event) {
+            console.log("Failed to connect to event stream. Is Redis running?");
+            resultElement.innerText =
+              "Failed Failed to connect to event stream. Is Redis running?";
+
+            resultElement.classList.add("error");
+            resultElement.classList.remove("success", "pending");
+
+            sBtn.removeAttribute("disabled");
+            sBtn.innerText = "Predict";
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            });
+          },
+          false
+        );
       }
     </script>
   </body>
