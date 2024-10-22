@@ -155,6 +155,13 @@
     </div>
 
     <script>
+      const formatCurrency = (value) => {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(value);
+      };
+
       const form = document.getElementById("predictionForm");
       const sBtn = document.getElementById("sBtn");
       const resultElement = document.getElementById("predictionResult");
@@ -209,7 +216,9 @@
             var data = JSON.parse(event.data);
             console.log(data);
 
-            resultElement.innerHTML = `The House price prediction is ${data?.prediction}`;
+            resultElement.innerHTML = `The House price prediction is ${formatCurrency(
+              data?.prediction
+            )}`;
             resultElement.classList.add("success");
             resultElement.classList.remove("error", "pending");
 
