@@ -41,6 +41,7 @@ pure_eval==0.2.3
 Pygments==2.18.0
 pyparsing==3.1.4
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
 pytz==2024.2
 pyzmq==26.2.0
 redis==5.1.1

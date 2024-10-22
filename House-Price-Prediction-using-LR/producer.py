@@ -1,11 +1,16 @@
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 import json
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 
 class Producer:
     def __init__(self, topic):
         self.producer = KafkaProducer(
-            bootstrap_servers = "localhost:9092",
+            bootstrap_servers = KAFKA_BOOTSTRAP_SERVERS,
             value_serializer=lambda m: json.dumps(m).encode('ascii')
         )
         self.topic = topic

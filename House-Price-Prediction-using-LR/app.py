@@ -1,4 +1,5 @@
 import datetime
+import os
 import pickle
 import time
 import webbrowser
@@ -8,12 +9,19 @@ from kafka import KafkaConsumer
 import threading
 from flask_sse import sse
 from apscheduler.schedulers.background import BackgroundScheduler
-
+from dotenv import load_dotenv
 import numpy as np
 import pandas as pd
+import signal
+import sys
+
+load_dotenv()
+
+REDIS_URL = os.getenv("REDIS_URL")
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 
 app = Flask(__name__)
-app.config["REDIS_URL"] = "redis://localhost"
+app.config["REDIS_URL"] = REDIS_URL
 app.register_blueprint(sse, url_prefix='/stream')
 
 # Load the model
@@ -25,6 +33,9 @@ result_topic = "prediction_result_topic"
 
 producer = Producer(request_topic)
 prediction_consumer = None
+
+is_running = True
+threads = []
 
 @app.route('/')
 def home():
@@ -41,9 +52,10 @@ def predict_api():
     return jsonify({"status": "Data sent for processing"})
 
 def request_consume():
+    global is_running
     print("--->Consuming process started<----")
     kfkconsumer = KafkaConsumer(
-        bootstrap_servers=["localhost:9092"],
+        bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
         group_id="prediction_group",
         auto_offset_reset="earliest",
         enable_auto_commit=False,
@@ -55,7 +67,7 @@ def request_consume():
 
     kfkconsumer.subscribe([request_topic])
     try:
-        while True:
+        while is_running:
             message = kfkconsumer.poll(100)
             if not message:
                 time.sleep(1)
@@ -83,7 +95,7 @@ def initialize_prediction_consumer():
     if prediction_consumer is None:
         prediction_consumer = KafkaConsumer(
             result_topic,
-            bootstrap_servers=['localhost:9092'],
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
             auto_offset_reset='latest',
             enable_auto_commit=True,
             group_id='prediction_result_group',
@@ -126,10 +138,39 @@ def scheduler_thread():
     )
     scheduler.start()
 
+    while is_running:
+        time.sleep(1)
+    
+    scheduler.shutdown()
+
+def start_background_threads():
+    consumer_thread = threading.Thread(target=request_consume, daemon=True)
+    consumer_thread.start()
+    threads.append(consumer_thread)
+
+    sched_thread = threading.Thread(target=scheduler_thread, daemon=True)
+    sched_thread.start()
+    threads.append(sched_thread)
+
+def signal_handler(signum, frame):
+    global is_running
+    print("Stopping threads...")
+    is_running = False
+
+    for thread in threads:
+        thread.join()
+    sys.exit(0)
+
 if __name__ == '__main__':
     threading.Thread(target=request_consume, daemon=True).start()
     threading.Thread(target=scheduler_thread, daemon=True).start()
-    app.run(debug=False, use_reloader=False, port=5001)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    start_background_threads()
+
+    app.run(debug=False, use_reloader=False, host="0.0.0.0", port=5001)
     
     if prediction_consumer:
         prediction_consumer.close()

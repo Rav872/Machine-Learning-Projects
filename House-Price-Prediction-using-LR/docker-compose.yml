@@ -32,3 +32,47 @@ services:
       - 9092:9092
       - 28082:28082
       - 29092:29092
+    volumes:
+      - "redpanda_data:/redpanda"
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - "6380:6379"
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+  
+  model_service:
+    build: 
+        context: ./
+        dockerfile: Dockerfile
+    container_name: house_prediction_model
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+      - ./templates:/app/templates
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda-1:29092
+    
+    ports:
+      - 5001:5001
+
+    tty: true
+    depends_on:
+      redis:
+        condition: service_healthy
+      redpanda-1:
+        condition: service_started
+
+volumes:
+  redpanda_data:
+    driver: local
+  redis:
+    driver: local
